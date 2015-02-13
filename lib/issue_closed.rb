@@ -84,8 +84,7 @@ module IssueClosed
   end
 end
 
-require 'dispatcher'
-  Dispatcher.to_prepare do 
+ActionDispatch::Callbacks.to_prepare do
     begin
       require_dependency 'application'
     rescue LoadError
