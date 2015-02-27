@@ -1,0 +1,1 @@
+post '/issue_statuses/update_issue_closed' =>  'issue_statuses#update_issue_closed'

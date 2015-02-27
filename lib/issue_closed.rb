@@ -73,7 +73,7 @@ module IssueClosed
             end
             
             @issue.delayed_job_id = delayed_job_id
-            @issue.send :update_without_callbacks
+            @issue.save :callbacks => false
             
             Delayed::Job.destroy to_destroy_id unless to_destroy_id == nil
             

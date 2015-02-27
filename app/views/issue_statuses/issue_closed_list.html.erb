@@ -1,31 +1,33 @@
 <div class="contextual">
-<%= link_to l(:label_issue_status_new), {:action => 'new'}, :class => 'icon icon-add' %>
+<%= link_to l(:label_issue_status_new), new_issue_status_path, :class => 'icon icon-add' %>
+<%= link_to(l(:label_update_issue_done_ratios), update_issue_done_ratio_issue_statuses_path, :class => 'icon icon-multiple', :method => 'post', :data => {:confirm => l(:text_are_you_sure)}) if Issue.use_status_for_done_ratio? %>
 </div>
 
 <h2><%=l(:label_issue_status_plural)%></h2>
- 
+
 <table class="list">
   <thead><tr>
   <th><%=l(:field_status)%></th>
+  <% if Issue.use_status_for_done_ratio? %>
+  <th><%=l(:field_done_ratio)%></th>
+  <% end %>
   <th><%=l(:field_is_default)%></th>
   <th><%=l(:field_is_closed)%></th>
   <th><%=l(:button_sort)%></th>
   <th></th>
   </tr></thead>
-  <tbody>  
+  <tbody>
 <% for status in @issue_statuses %>
   <tr class="<%= cycle("odd", "even") %>">
-  <td><%= link_to status.name, :action => 'edit', :id => status %></td>
-  <td align="center"><%= image_tag 'true.png' if status.is_default? %></td>
-  <td align="center"><%= image_tag 'true.png' if status.is_closed? %></td>
-  <td align="center" style="width:15%;">
-    <%= link_to image_tag('2uparrow.png', :alt => l(:label_sort_highest)), {:action => 'move', :id => status, :position => 'highest'}, :method => :post, :title => l(:label_sort_highest) %>
-    <%= link_to image_tag('1uparrow.png', :alt => l(:label_sort_higher)), {:action => 'move', :id => status, :position => 'higher'}, :method => :post, :title => l(:label_sort_higher) %> -
-    <%= link_to image_tag('1downarrow.png', :alt => l(:label_sort_lower)), {:action => 'move', :id => status, :position => 'lower'}, :method => :post, :title => l(:label_sort_lower) %>
-    <%= link_to image_tag('2downarrow.png', :alt => l(:label_sort_lowest)), {:action => 'move', :id => status, :position => 'lowest'}, :method => :post, :title => l(:label_sort_lowest) %>
-  </td>
-  <td align="center" style="width:10%;">
-    <%= button_to l(:button_delete), { :action => 'destroy', :id => status }, :confirm => l(:text_are_you_sure), :class => "button-small" %>
+  <td class="name"><%= link_to h(status.name), edit_issue_status_path(status) %></td>
+  <% if Issue.use_status_for_done_ratio? %>
+  <td><%= h status.default_done_ratio %></td>
+  <% end %>
+  <td><%= checked_image status.is_default? %></td>
+  <td><%= checked_image status.is_closed? %></td>
+  <td class="reorder"><%= reorder_links('issue_status', {:action => 'update', :id => status}, :put) %></td>
+  <td class="buttons">
+    <%= delete_link issue_status_path(status) %>
   </td>
   </tr>
 <% end %>
@@ -38,7 +40,7 @@
 
 <fieldset class="box">
   <legend >Issue Closed Plugin Settings</legend>
-  <% form_for :issue_statuses, :url => { :action => :update_issue_closed } do |form| %>
+  <%= form_for :issue_statuses, :url => { :action => :update_issue_closed } do |form| %>
     <label for="issue-status-resolved">Select "resolved" issue status</label>
     <select id="issue-status-resolved" name="resolved">
       <% for status in @issue_statuses %>
