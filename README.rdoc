@@ -1,4 +1,5 @@
 = Issue_closed http://stillmaintained.com/edtsech/redmine_x_closed.png
+v0.0.1
 
 This redmine plugin closing issues a week after their "Resolving".
   
