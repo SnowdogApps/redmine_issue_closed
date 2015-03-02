@@ -3,6 +3,10 @@ module IssueClosed
     def perform
       issue = Issue.find issue_id
       if issue.status.state == false
+        # add journal
+        bot_user = User.find_by_login(Setting.bot_login)
+        issue.init_journal(bot_user) unless bot_user.nil?
+
         issue.status = IssueStatus.find_by_state true
         issue.save
       end
@@ -71,11 +75,13 @@ module IssueClosed
               job = Delayed::Job.enqueue DelayedClose.new(@issue.id), 0, 7.days.from_now
               delayed_job_id = job.id
             end
-            
+
             @issue.delayed_job_id = delayed_job_id
             @issue.save :callbacks => false
-            
-            Delayed::Job.destroy to_destroy_id unless to_destroy_id == nil
+
+            # in case of change closed to resolved dj could not exists
+            dj = Delayed::Job.find_by_id(to_destroy_id) unless to_destroy_id == nil
+            dj.destroy unless dj.nil?
             
           end
         end
