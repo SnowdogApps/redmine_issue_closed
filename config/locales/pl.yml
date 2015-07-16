@@ -1,2 +1,2 @@
 pl:
-  field_delayed_job: 'id auto zamknięcia'
+  field_delayed_job: 'Pozycja kolejki auto zamknięcia'
