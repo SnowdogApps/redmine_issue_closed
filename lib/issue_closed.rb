@@ -1,3 +1,7 @@
+Rails.configuration.to_prepare do
+  require 'hooks/controller_issue_hook'
+end
+
 module IssueClosed
   class DelayedClose < Struct.new(:issue_id)
     def perform
