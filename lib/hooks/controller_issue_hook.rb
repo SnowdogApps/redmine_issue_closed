@@ -2,10 +2,11 @@ module IssueClosed
   module Hooks
     class ControllerIssueHook < Redmine::Hook::ViewListener
       
-      def controller_issues_bulk_edit_before_save(context={})
-        @issue = context[:issue]
+      def controller_issues_bulk_edit_after_save(context={})
+        @issue        = context[:issue]
+        changed_attrs = context[:changed_attrs]
 
-        if module_enable?
+        if module_enable? && changed_attrs.include?('status_id')
           to_destroy_id = @issue.delayed_job_id
           delayed_job_id = nil
           
@@ -15,6 +16,7 @@ module IssueClosed
           end
 
           @issue.delayed_job_id = delayed_job_id
+          @issue.save :callbacks => false
 
           # in case of change closed to resolved dj could not exists
           dj = Delayed::Job.find_by_id(to_destroy_id) unless to_destroy_id == nil
